@@ -1,0 +1,7 @@
+TransactionId;Amount;Product;SalesPersonId
+T001;100.50;Widget A;101
+T002;200.75;Widget B;102
+T003;150.00;Widget A;101
+T004;300.00;Widget C;103
+T005;300.00;Widget C;104
+T006;200.75;Widget B;104
