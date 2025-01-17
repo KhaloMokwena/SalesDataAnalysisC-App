@@ -39,7 +39,7 @@ T005,300.00,Widget C,104
 T006,200.75,Widget B,104
 ```
 
-### Example CSV Data when opened in a csv compatible App:
+### Example CSV Data when opened in a CSV compatible App:
 
 | TransactionId | Amount | Product   | SalesPersonId |
 |---------------|--------|-----------|---------------|
