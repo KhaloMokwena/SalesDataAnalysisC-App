@@ -75,7 +75,7 @@ namespace SalesAnalysis.Tests
             var result = SalesCalculator.GetSalesByProduct(sales);
 
             // Assert
-            Assert.Equal(2, result["Widget A"].Total);
+            Assert.Equal(250.5, result["Widget A"].Total);
             Assert.Equal(125.25, result["Widget A"].Average, precision: 2);
             Assert.Equal(200.75, result["Widget B"].Total, precision: 2);
         }
