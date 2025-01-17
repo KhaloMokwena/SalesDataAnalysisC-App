@@ -1,0 +1,186 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 2693569..1696755 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-# Sales Data Analysis - C# Console Application[m
+[32m+[m[32m# Enhanced Sales Data Analysis Console Application[m
+ [m
+ ## Overview[m
+ [m
+[36m@@ -39,7 +39,7 @@[m [mT005,300.00,Widget C,104[m
+ T006,200.75,Widget B,104[m
+ ```[m
+ [m
+[31m-### Example CSV Data when opened in a CSV compatible App:[m
+[32m+[m[32m### Example CSV Data:[m
+ [m
+ | TransactionId | Amount | Product   | SalesPersonId |[m
+ |---------------|--------|-----------|---------------|[m
+[36m@@ -53,10 +53,14 @@[m [mT006,200.75,Widget B,104[m
+ [m
+ ## How to Run the Application[m
+ [m
+[31m-1. Open the project in Visual Studio or another C# IDE.[m
+[31m-2. Make sure the `sales_data.csv` file is in the same directory as the application.[m
+[31m-3. Build and run the console application.[m
+[31m-4. Follow the on-screen menu to select different analysis options.[m
+[32m+[m[32m1.To clone the repository, you can open your command prompt/terminal and use the following command:[m
+[32m+[m
+[32m+[m[32mgit clone https://github.com/KhaloMokwena/SalesDataAnalysisC-App.git[m
+[32m+[m
+[32m+[m[32m2. Open the project in Visual Studio or another C# IDE.[m
+[32m+[m[32m3. Make sure the `sales_data.csv` file is in the same directory as the application.[m
+[32m+[m[32m4. Build and run the console application.[m
+[32m+[m[32m5. Follow the on-screen menu to select different analysis options.[m
+ [m
+ ## Assumptions[m
+ [m
+[36m@@ -68,8 +72,6 @@[m [mT006,200.75,Widget B,104[m
+ [m
+ The application is designed to handle the following errors:[m
+ [m
+[31m-- **Missing CSV file**: If the file is not found, the application will inform the user and display the called file path.[m
+[32m+[m[32m- **Missing CSV file**: If the file is not found, the application will inform the user and exit gracefully.[m
+ - **Invalid CSV data**: If any line in the CSV has missing or malformed data, the application will skip it and continue processing valid lines.[m
+ - **Invalid user input**: If the user enters an invalid choice (e.g., non-numeric input when selecting an option), the application will prompt them to try again.[m
+[31m-[m
+[31m-[m
+[1mdiff --git a/SalesAnalysis.Tests/SalesAnalysis.Tests.csproj b/SalesAnalysis.Tests/SalesAnalysis.Tests.csproj[m
+[1mindex fb3603f..6987d33 100644[m
+[1m--- a/SalesAnalysis.Tests/SalesAnalysis.Tests.csproj[m
+[1m+++ b/SalesAnalysis.Tests/SalesAnalysis.Tests.csproj[m
+[36m@@ -10,10 +10,17 @@[m
+   </PropertyGroup>[m
+ [m
+   <ItemGroup>[m
+[31m-    <PackageReference Include="coverlet.collector" Version="6.0.0" />[m
+[31m-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />[m
+[31m-    <PackageReference Include="xunit" Version="2.5.3" />[m
+[31m-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />[m
+[32m+[m[32m    <PackageReference Include="coverlet.collector" Version="6.0.3">[m
+[32m+[m[32m      <PrivateAssets>all</PrivateAssets>[m
+[32m+[m[32m      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>[m
+[32m+[m[32m    </PackageReference>[m
+[32m+[m[32m    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />[m
+[32m+[m[32m    <PackageReference Include="Moq" Version="4.20.72" />[m
+[32m+[m[32m    <PackageReference Include="xunit" Version="2.9.3" />[m
+[32m+[m[32m    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1">[m
+[32m+[m[32m      <PrivateAssets>all</PrivateAssets>[m
+[32m+[m[32m      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>[m
+[32m+[m[32m    </PackageReference>[m
+   </ItemGroup>[m
+ [m
+   <ItemGroup>[m
+[1mdiff --git a/SalesAnalysis.Tests/SalesCalculatorTests.cs b/SalesAnalysis.Tests/SalesCalculatorTests.cs[m
+[1mdeleted file mode 100644[m
+[1mindex 0195516..0000000[m
+[1m--- a/SalesAnalysis.Tests/SalesCalculatorTests.cs[m
+[1m+++ /dev/null[m
+[36m@@ -1,120 +0,0 @@[m
+[31m-using SalesDataAnalysis;[m
+[31m-using Xunit;[m
+[31m-using System.Collections.Generic;[m
+[31m-[m
+[31m-namespace SalesAnalysis.Tests[m
+[31m-{[m
+[31m-    public class SalesCalculatorTests[m
+[31m-    {[m
+[31m-        [Fact][m
+[31m-        public void GetTotalSalesAmount_ShouldReturnCorrectSum()[m
+[31m-        {[m
+[31m-            // Arrange[m
+[31m-            var sales = new List<Sale>[m
+[31m-            {[m
+[31m-                new Sale { Amount = 100.50 },[m
+[31m-                new Sale { Amount = 200.75 },[m
+[31m-                new Sale { Amount = 150.00 }[m
+[31m-            };[m
+[31m-[m
+[31m-            // Act[m
+[31m-            double result = SalesCalculator.GetTotalSalesAmount(sales);[m
+[31m-[m
+[31m-            // Assert[m
+[31m-            Assert.Equal(451.25, result, precision: 2);[m
+[31m-        }[m
+[31m-[m
+[31m-        [Fact][m
+[31m-        public void GetAverageSalesAmount_ShouldReturnCorrectAverage()[m
+[31m-        {[m
+[31m-            // Arrange[m
+[31m-            var sales = new List<Sale>[m
+[31m-            {[m
+[31m-                new Sale { Amount = 100.50 },[m
+[31m-                new Sale { Amount = 200.75 },[m
+[31m-                new Sale { Amount = 150.00 }[m
+[31m-            };[m
+[31m-[m
+[31m-            // Act[m
+[31m-            double result = SalesCalculator.GetAverageSalesAmount(sales);[m
+[31m-[m
+[31m-            // Assert[m
+[31m-            Assert.Equal(150.42, result, precision: 2);[m
+[31m-        }[m
+[31m-[m
+[31m-        [Fact][m
+[31m-        public void GetHighestSale_ShouldReturnCorrectMaxSale()[m
+[31m-        {[m
+[31m-            // Arrange[m
+[31m-            var sales = new List<Sale>[m
+[31m-            {[m
+[31m-                new Sale { Amount = 100.50 },[m
+[31m-                new Sale { Amount = 300.75 },[m
+[31m-                new Sale { Amount = 150.00 }[m
+[31m-            };[m
+[31m-[m
+[31m-            // Act[m
+[31m-            var result = SalesCalculator.GetHighestSale(sales);[m
+[31m-[m
+[31m-            // Assert[m
+[31m-            Assert.Equal(300.75, result.Amount);[m
+[31m-        }[m
+[31m-[m
+[31m-        [Fact][m
+[31m-        public void GetSalesByProduct_ShouldReturnCorrectSalesData()[m
+[31m-        {[m
+[31m-            // Arrange[m
+[31m-            var sales = new List<Sale>[m
+[31m-            {[m
+[31m-                new Sale { Product = "Widget A", Amount = 100.50 },[m
+[31m-                new Sale { Product = "Widget A", Amount = 150.00 },[m
+[31m-                new Sale { Product = "Widget B", Amount = 200.75 }[m
+[31m-            };[m
+[31m-[m
+[31m-            // Act[m
+[31m-            var result = SalesCalculator.GetSalesByProduct(sales);[m
+[31m-[m
+[31m-            // Assert[m
+[31m-            Assert.Equal(250.5, result["Widget A"].Total);[m
+[31m-            Assert.Equal(125.25, result["Widget A"].Average, precision: 2);[m
+[31m-            Assert.Equal(200.75, result["Widget B"].Total, precision: 2);[m
+[31m-        }[m
+[31m-[m
+[31m-        [Fact][m
+[31m-        public void GetSalesPersonWithMaxSales_ShouldReturnCorrectSalesPersonId()[m
+[31m-        {[m
+[31m-            // Arrange[m
+[31m-            var sales = new List<Sale>[m
+[31m-            {[m
+[31m-                new Sale { SalesPersonId = 101, Amount = 100.50 },[m
+[31m-                new Sale { SalesPersonId = 102, Amount = 300.00 },[m
+[31m-                new Sale { SalesPersonId = 101, Amount = 150.00 }[m
+[31m-            };[m
+[31m-[m
+[31m-            // Act[m
+[31m-            var result = SalesCalculator.GetSalesPersonWithMaxSales(sales);[m
+[31m-[m
+[31m-            // Assert[m
+[31m-            Assert.Equal(102, result);[m
+[31m-        }[m
+[31m-[m
+[31m-        [Fact][m
+[31m-        public void GetSalesCountBySalesPerson_ShouldReturnCorrectCounts()[m
+[31m-        {[m
+[31m-            // Arrange[m
+[31m-            var sales = new List<Sale>[m
+[31m-            {[

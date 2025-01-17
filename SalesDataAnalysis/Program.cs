@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SalesDataAnalysis.Data;
+using SalesAnalysis;
+//using static SalesAnalysis.Tests.ProgramTests;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using SalesDataAnalysis; // This allows Program.cs to use the Sale class
-
-
-[assembly: InternalsVisibleTo("SalesAnalysis.Tests")]  // Exposing internals to the test project
 
 namespace SalesDataAnalysis
 {
@@ -15,122 +9,119 @@ namespace SalesDataAnalysis
     {
         static void Main(string[] args)
         {
-            // Loading sales data from the CSV file
+            // Defining the file path to the sales data CSV file
             string filePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Data/sales_data.csv");
+            List<Sale> salesData = null;
 
-            if (!File.Exists(filePath))
+            try
             {
-                Console.WriteLine($"Error: CSV file not found at {Path.GetFullPath(filePath)}");
-                Console.ReadLine();
+                // Reading the sales data from the CSV file
+                salesData = CsvHelper.ReadCsv(filePath, MapSale);
+            }
+            catch (Exception ex)
+            {
+                // Handling any errors that occur during file reading
+                Console.WriteLine($"Error: {ex.Message}");
                 return;
             }
 
-            var sales = LoadSalesData(filePath);
-            if (sales == null)
-            {
-                return;
-            }
-
-            int option;
-            do
+            var menuOption = 0;
+            while (menuOption != 7)
             {
                 // Displaying the menu options to the user
-                Console.WriteLine("Select an option:");
-                Console.WriteLine("1. Total sales amount");
-                Console.WriteLine("2. Average sales amount per transaction");
-                Console.WriteLine("3. Highest sale amount");
-                Console.WriteLine("4. Total sales and average sales grouped by each product");
-                Console.WriteLine("5. SalespersonId with maximum sales");
-                Console.WriteLine("6. SalespersonID with number of sales done");
-                Console.WriteLine("7. Exit");
-                Console.Write("Enter your choice: ");
+                DisplayMenu();
+                if (!int.TryParse(Console.ReadLine(), out menuOption) || menuOption < 1 || menuOption > 7)
+                {
+                    // Handling invalid menu selections
+                    Console.WriteLine("Invalid selection. Please choose a valid option.");
+                    continue;
+                }
 
-                // Reading user input and processing the selection
-                if (int.TryParse(Console.ReadLine(), out option))
+                // Executing the selected menu option
+                switch (menuOption)
                 {
-                    switch (option)
-                    {
-                        case 1:
-                            Console.WriteLine($"Total Sales Amount: {CalculateTotalSales(sales)}");
-                            break;
-                        case 2:
-                            Console.WriteLine($"Average Sales Amount: {CalculateAverageSales(sales)}");
-                            break;
-                        case 3:
-                            Console.WriteLine($"Highest Sale Amount: {CalculateHighestSale(sales)}");
-                            break;
-                        case 4:
-                            DisplaySalesByProduct(sales);
-                            break;
-                        case 5:
-                            Console.WriteLine($"SalespersonId with Maximum Sales: {GetSalesPersonWithMaxSales(sales)}");
-                            break;
-                        case 6:
-                            GetSalesCountBySalesPerson(sales);
-                            break;
-                        case 7:
-                            Console.WriteLine("Exiting the application.");
-                            break;
-                        default:
-                            Console.WriteLine("Invalid option. Please try again.");
-                            break;
-                    }
+                    case 1:
+                        DisplayTotalSales(salesData);
+                        break;
+                    case 2:
+                        DisplayAverageSales(salesData);
+                        break;
+                    case 3:
+                        DisplayHighestSale(salesData);
+                        break;
+                    case 4:
+                        DisplaySalesGroupedByProduct(salesData);
+                        break;
+                    case 5:
+                        DisplaySalespersonWithMaxSales(salesData);
+                        break;
+                    case 6:
+                        DisplaySalespersonWithSalesCount(salesData);
+                        break;
+                    case 7:
+                        Console.WriteLine("Exiting the application...");
+                        break;
                 }
-                else
-                {
-                    Console.WriteLine("Invalid input. Please enter a number.");
-                }
-            } while (option != 7); // Repeat until the user chooses to exit
+            }
         }
 
-        // Loading sales data from the CSV file
-        private static List<Sale> LoadSalesData(string filePath)
+        // Displaying the menu options to the user
+        static void DisplayMenu()
         {
-            return CsvHelper.ReadCsv(filePath, values =>
+            Console.WriteLine("1. Total sales amount");
+            Console.WriteLine("2. Average sales amount per transaction");
+            Console.WriteLine("3. Highest sale amount");
+            Console.WriteLine("4. Total sales and average sales grouped by each product");
+            Console.WriteLine("5. SalespersonId with maximum sales");
+            Console.WriteLine("6. SalespersonId with the number of sales done");
+            Console.WriteLine("7. Exit");
+            Console.Write("Select an option: ");
+        }
+
+        // Displaying the total sales amount
+        static void DisplayTotalSales(List<Sale> salesData)
+        {
+            if (salesData == null || !salesData.Any())
             {
-                if (values.Length < 4)
-                {
-                    Console.WriteLine($"Invalid line format: {string.Join(";", values)}");
-                    return null;
-                }
+                Console.WriteLine("No sales data available to calculate the Total Sales.");
+                return;
+            }
 
-                try
-                {
-                    return new Sale
-                    {
-                        TransactionId = values[0].Trim(),
-                        Amount = double.Parse(values[1].Trim(), CultureInfo.InvariantCulture),
-                        Product = values[2].Trim(),
-                        SalesPersonId = int.Parse(values[3].Trim())
-                    };
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error parsing line: {string.Join(";", values)}, Error: {ex.Message}");
-                    return null;
-                }
-            }).Where(s => s != null).ToList();
+            var totalSales = salesData.Sum(s => s.Amount);
+            Console.WriteLine($"Total Sales: {totalSales:C2}");
         }
 
-        public static double CalculateTotalSales(List<Sale> sales)
+        // Displaying the average sales amount per transaction
+        static void DisplayAverageSales(List<Sale> salesData)
         {
-            return sales.Sum(s => s.Amount);
+            if (salesData == null || !salesData.Any())
+            {
+                Console.WriteLine("No sales data available to calculate the average.");
+                return;
+            }
+
+            var averageSales = salesData.Average(s => s.Amount);
+            Console.WriteLine($"Average Sales: {averageSales:C2}");
         }
 
-        public static double CalculateAverageSales(List<Sale> sales)
+        // Displaying the highest sale amount
+        static void DisplayHighestSale(List<Sale> salesData)
         {
-            return sales.Count > 0 ? sales.Average(s => s.Amount) : 0;
+            if (salesData == null || !salesData.Any())
+            {
+                Console.WriteLine("No sales data available.");
+                return;
+            }
+
+            var highestSale = salesData.Max(s => s.Amount);
+            Console.WriteLine($"Highest Sale: {highestSale:C2}");
         }
 
-        public static double CalculateHighestSale(List<Sale> sales)
+        // Displaying total sales and average sales grouped by each product
+        static void DisplaySalesGroupedByProduct(List<Sale> salesData)
         {
-            return sales.Count > 0 ? sales.Max(s => s.Amount) : 0;
-        }
-
-        // Displaying total and average sales grouped by each product
-        private static void DisplaySalesByProduct(List<Sale> sales)
-        {
-            var groupedSales = sales.GroupBy(s => s.Product)
+            var groupedSales = salesData
+                .GroupBy(s => s.Product)
                 .Select(g => new
                 {
                     Product = g.Key,
@@ -138,40 +129,80 @@ namespace SalesDataAnalysis
                     AverageSales = g.Average(s => s.Amount)
                 });
 
-            // Displaying the results
-            Console.WriteLine("Sales grouped by product:");
             foreach (var group in groupedSales)
             {
-                Console.WriteLine($"Product: {group.Product}, Total Sales: {group.TotalSales}, Average Sales: {group.AverageSales}");
+                Console.WriteLine($"{group.Product} - Total Sales: {group.TotalSales:C2}, Average Sales: {group.AverageSales:C2}");
             }
         }
 
-        // Getting the SalespersonId with maximum sales
-        private static int GetSalesPersonWithMaxSales(List<Sale> sales)
+        // Displaying the salesperson with the highest total sales
+        static void DisplaySalespersonWithMaxSales(List<Sale> salesData)
         {
-            var maxSalesPerson = sales.GroupBy(s => s.SalesPersonId)
-                .OrderByDescending(g => g.Sum(s => s.Amount))
-                .FirstOrDefault();
-
-            return maxSalesPerson?.Key ?? 0; // Returning 0 if no sales found
-        }
-
-        // Getting the count of sales done by each SalespersonID
-        private static void GetSalesCountBySalesPerson(List<Sale> sales)
-        {
-            var salesCount = sales.GroupBy(s => s.SalesPersonId)
-                .Select(g => new
-                {
-                    SalesPersonId = g.Key,
-                    Count = g.Count()
-                });
-
-            // Displaying the results
-            Console.WriteLine("Sales count by SalespersonID:");
-            foreach (var count in salesCount)
+            try
             {
-                Console.WriteLine($"SalespersonID: {count.SalesPersonId}, Count: {count.Count}");
+                if (salesData == null || !salesData.Any())
+                {
+                    Console.WriteLine("No sales data available.");
+                    return;
+                }
+
+                var salesperson = salesData
+                    .GroupBy(s => s.SalesPersonId)
+                    .Select(g => new
+                    {
+                        SalesPersonId = g.Key,
+                        TotalSales = g.Sum(s => s.Amount)
+                    })
+                    .OrderByDescending(g => g.TotalSales)
+                    .First();
+
+                Console.WriteLine($"Salesperson {salesperson.SalesPersonId} had the highest total sales: {salesperson.TotalSales:C2}");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while displaying the salesperson with the highest sales: {ex.Message}");
+            }
+        }
+
+        // Displaying the salesperson with the most sales transactions
+        static void DisplaySalespersonWithSalesCount(List<Sale> salesData)
+        {
+            try
+            {
+                if (salesData == null || !salesData.Any())
+                {
+                    Console.WriteLine("No sales data available.");
+                    return;
+                }
+
+                var salesperson = salesData
+                    .GroupBy(s => s.SalesPersonId)
+                    .Select(g => new
+                    {
+                        SalesPersonId = g.Key,
+                        SalesCount = g.Count()
+                    })
+                    .OrderByDescending(g => g.SalesCount)
+                    .First();
+
+                Console.WriteLine($"Salesperson {salesperson.SalesPersonId} made the most sales: {salesperson.SalesCount} transactions");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while displaying the salesperson with the most sales: {ex.Message}");
+            }
+        }
+
+        // Mapping the CSV data to the Sale object
+        static Sale MapSale(string[] values)
+        {
+            return new Sale
+            {
+                TransactionId = values[0],
+                Amount = (double)decimal.Parse(values[1], CultureInfo.InvariantCulture),
+                Product = values[2],
+                SalesPersonId = int.Parse(values[3])
+            };
         }
     }
 }
